@@ -6,6 +6,7 @@
 >
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <meta name="x-apple-disable-message-reformatting" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -373,13 +374,14 @@
       margin: 0;
     "
   >
-    <div class="es-wrapper-color" style="background-color: #fafafa">
+    <table  class="es-wrapper-color" style="background-color: #fafafa">
       <!--[if gte mso 9]>
         <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
           <v:fill type="tile" color="#fafafa"></v:fill>
         </v:background>
       <![endif]-->
-      <table
+     <tr>
+       <td> <table
         class="es-wrapper"
         width="100%"
         cellspacing="0"
@@ -669,7 +671,7 @@
                                         font-size: 16px;
                                       "
                                     >
-                                      Hello, <strong>{{ user.first_name }}!</strong> Thanks for
+                                      Hello, <b>{{ user.first_name }}!</b> Thanks for
                                       joining us! Please activate your
                                       account.🎯
                                     </p>
@@ -772,7 +774,7 @@
                                           border-left-width: 30px;
                                           border-right-width: 30px;
                                         "
-                                        >ACTIVATE ACCOUNT</a
+                                        >ACTIVATE</a
                                       ></span
                                     >
                                   </td>
@@ -1168,6 +1170,8 @@
           </td>
         </tr>
       </table>
-    </div>
+    </td>
+     </tr>
+    </table>
   </body>
 </html>
