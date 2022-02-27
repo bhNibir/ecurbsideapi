@@ -12,11 +12,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import django_heroku
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = 'django-insecure-bqon-7z_z(c%-k3z92(e@38=x7&(#fd(0jwl@5fo)#eq^odw#2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -62,7 +57,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -102,7 +96,6 @@ CORS_ALLOWED_ORIGINS = [
 "http://127.0.0.1:8001",
 "http://127.0.0.1:8000",
 'http://localhost:8000',
-'https://ecurbside-17b9c.web.app',
 ]
 
 
@@ -205,22 +198,20 @@ GRAPHQL_AUTH = {
     "ALLOW_LOGIN_WITH_SECONDARY_EMAIL": False,
 
     "EMAIL_TEMPLATE_VARIABLES": {
-        "site_name": os.getenv("SITE_NAME"),
-        "frontend_domain" : os.getenv("FRONTEND_DOMAIN"),
+        "site_name": "Ecurbside.com",
+        "frontend_domain" : "127.0.0.1:3000"
     }
 
 }
 
-print("frontend_domain", os.getenv("FRONTEND_DOMAIN"))
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST ='smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = True
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST ='smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'ecurbsidehelp@gmail.com'
+# EMAIL_HOST_PASSWORD = 'zphludqivgoqlwla'
+# EMAIL_USE_TLS = True
 
 django_heroku.settings(locals())
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
