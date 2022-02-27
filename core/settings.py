@@ -211,7 +211,6 @@ GRAPHQL_AUTH = {
 
 }
 
-print("frontend_domain", os.getenv("FRONTEND_DOMAIN"))
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
