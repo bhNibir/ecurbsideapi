@@ -13,8 +13,10 @@ class TreatmentType(DjangoObjectType):
         fields = ("id", "disease","treatment_name", "other_name", "treatment_categories", "descriptions", "create_by", "created_at", "updated_at")
         
 
-    def resolve_image_url(self, info):        
-        return info.context.build_absolute_uri(self.image.url)
+    def resolve_image_url(self, info):    
+
+        if self.image:
+            return info.context.build_absolute_uri(self.image.url)
 
 class TreatmentCategoriesType(DjangoObjectType):
     class Meta:
