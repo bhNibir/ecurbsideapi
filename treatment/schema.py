@@ -7,10 +7,11 @@ from .models import Treatment, TreatmentCategories
 
 
 class TreatmentType(DjangoObjectType):
+    image_url = graphene.String()
     class Meta:
         model = Treatment
-        fields = ("id", "disease","treatment_name", "other_name", "treatment_categories", "image", "descriptions", "create_by", "created_at", "updated_at")
-        image_url = graphene.String()
+        fields = ("id", "disease","treatment_name", "other_name", "treatment_categories", "descriptions", "create_by", "created_at", "updated_at")
+        
 
     def resolve_image_url(self, info):        
         return info.context.build_absolute_uri(self.image.url)
@@ -24,8 +25,8 @@ class Query(graphene.ObjectType):
     treatments = graphene.List(TreatmentType)
     treatments_categories = graphene.List(TreatmentCategoriesType)
     treatment_by_id = graphene.Field(TreatmentType, id=graphene.String(required=True))
-    treatment_by_disease_id = graphene.List(TreatmentType, disease_id=graphene.String(required=True))
-    treatment_category_by_name = graphene.Field(TreatmentCategoriesType, name=graphene.String(required=True))
+    # treatment_by_disease_id = graphene.List(TreatmentType, disease_id=graphene.String(required=True))
+    # treatment_category_by_name = graphene.Field(TreatmentCategoriesType, name=graphene.String(required=True))
 
 
     def resolve_treatments(self, info, **kwargs):
@@ -42,20 +43,20 @@ class Query(graphene.ObjectType):
         return TreatmentCategories.objects.all()
 
     def resolve_treatment_by_id(self, info, id):
-        # Querying a single Disease
+        # Querying a single Treatment
         return Treatment.objects.get(pk=id)
     
-    def resolve_treatment_by_disease_id(self, info, disease_id):
-        # Querying a single Disease
-        print("disease_id", disease_id)
-        return Treatment.objects.filter(disease__id=disease_id)
+    # def resolve_treatment_by_disease_id(self, info, disease_id):
+    #     # Querying a single Disease
+    #     print("disease_id", disease_id)
+    #     return Treatment.objects.filter(disease__id=disease_id)
         
 
-    def resolve_treatment_category_by_name(self, info, name):
-        try:
-            return TreatmentCategories.objects.get(name=name)
-        except TreatmentCategories.DoesNotExist:
-            return None
+    # def resolve_treatment_category_by_name(self, info, name):
+    #     try:
+    #         return TreatmentCategories.objects.get(name=name)
+    #     except TreatmentCategories.DoesNotExist:
+    #         return None
 
 
 # class CreateDisease(graphene.Mutation):

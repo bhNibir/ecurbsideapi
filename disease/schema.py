@@ -3,6 +3,8 @@ from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
+from treatment.schema import TreatmentType
+
 from .models import Disease, DiseaseCategories
 
 
@@ -10,6 +12,11 @@ class DiseaseType(DjangoObjectType):
     class Meta:
         model = Disease
         fields = ("id", "disease_name", "disease_categories", "descriptions", "create_by", "created_at", "updated_at")
+    
+    treatments = graphene.List(TreatmentType)
+
+    def resolve_treatments(self, info):
+        return self.treatment_disease.all()
 
 class DiseaseCategoriesType(DjangoObjectType):
     class Meta:
@@ -20,7 +27,7 @@ class Query(graphene.ObjectType):
     diseases = graphene.List(DiseaseType)
     diseases_categories = graphene.List(DiseaseCategoriesType)
     disease_by_id = graphene.Field(DiseaseType, id=graphene.String(required=True))
-    disease_category_by_name = graphene.Field(DiseaseCategoriesType, name=graphene.String(required=True))
+    # disease_category_by_name = graphene.Field(DiseaseCategoriesType, name=graphene.String(required=True))
 
 
     def resolve_diseases(self, info, **kwargs):
@@ -41,11 +48,11 @@ class Query(graphene.ObjectType):
         return Disease.objects.get(pk=id)
         
 
-    def resolve_disease_category_by_name(self, info, name):
-        try:
-            return DiseaseCategories.objects.get(name=name)
-        except DiseaseCategories.DoesNotExist:
-            return None
+    # def resolve_disease_category_by_name(self, info, name):
+    #     try:
+    #         return DiseaseCategories.objects.get(name=name)
+    #     except DiseaseCategories.DoesNotExist:
+    #         return None
 
 
 class CreateDisease(graphene.Mutation):
@@ -70,6 +77,8 @@ class CreateDisease(graphene.Mutation):
         disease.disease_categories.set(disease_categories_id)
         
         return CreateDisease(disease=disease)
+
+        
 
 # class UpdateTrack(graphene.Mutation):
 #     track = graphene.Field(TrackType)
