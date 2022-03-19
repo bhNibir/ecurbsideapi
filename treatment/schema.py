@@ -4,10 +4,14 @@ from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
 from .models import Treatment, TreatmentCategories
+from django.db.models import Avg
+
 
 
 class TreatmentType(DjangoObjectType):
     image_url = graphene.String()
+    total_reviews = graphene.Int()
+    avg_rating = graphene.Int()
     class Meta:
         model = Treatment
         fields = ("id", "disease","treatment_name", "other_name", "treatment_categories", "descriptions", "create_by", "created_at", "updated_at")
@@ -17,6 +21,14 @@ class TreatmentType(DjangoObjectType):
 
         if self.image:
             return info.context.build_absolute_uri(self.image.url)
+
+    def resolve_total_reviews(self, info):
+        return self.fk_review_treatment.count()
+
+    def resolve_avg_rating(self, info):
+        rating_obj = self.fk_review_treatment.aggregate(Avg('rating'))
+
+        return rating_obj["rating__avg"]
 
 class TreatmentCategoriesType(DjangoObjectType):
     class Meta:

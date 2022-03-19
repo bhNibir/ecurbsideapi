@@ -51,7 +51,5 @@ class Treatment(models.Model):
     def __str__(self):
         return self.treatment_name
 
-    def amt_reviews(self):
-        return self.fk_review_treatment.count()
 
     
