@@ -16,14 +16,48 @@ class Review(models.Model):
     content = models.CharField(max_length=500)
 
     rating = models.IntegerField(choices=RATING)
-
-    created = models.DateTimeField(auto_now_add=True)
-
-    user = models.ForeignKey(to=settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE, related_name='fk_review_user')
+    
+    create_by = models.ForeignKey(to=settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE, related_name='fk_review_user')    
     
     treatment = models.ForeignKey(
         to=Treatment, on_delete=models.CASCADE, related_name='fk_review_treatment')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{self.pk}: {self.user} - {self.treatment}'
+        return f'{self.pk}: {self.create_by} - {self.treatment}'
+
+
+
+class ReviewComment(models.Model):
+
+    create_by = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='fk_comment_user')
+    
+    review = models.ForeignKey(to=Review, on_delete=models.CASCADE, related_name='fk_comment_review')
+    
+    content = models.CharField(max_length=400)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.create_by} - {self.review}'
+
+
+
+class ReviewLike(models.Model):
+    sender = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='fk_like_review_user')
+    
+    reviewID = models.ForeignKey(
+        to=Review, on_delete=models.CASCADE, null=True, related_name='fk_like_review')
+
+    class Meta:
+        unique_together = ('reviewID', 'sender',)
+
+    def __str__(self):
+        return f'{self.pk}: {self.reviewID, self.sender}'

@@ -55,8 +55,6 @@ INSTALLED_APPS = [
     'treatment',
     'disease',
     'review',
-    'comment',
-    'likereviews',
     'users'
 ]
 
