@@ -2,10 +2,34 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
-
-from treatment.schema import TreatmentType
+from django.db.models import Avg
 
 from .models import Disease, DiseaseCategories
+from treatment.models import Treatment
+
+
+
+class DiseaseTreatmentType(DjangoObjectType):
+    image_url = graphene.String()
+    total_reviews = graphene.Int()
+    avg_rating = graphene.Int()
+    class Meta:
+        model = Treatment
+        fields = ("id", "disease","treatment_name", "other_name", "treatment_categories", "descriptions", "create_by", "created_at", "updated_at")
+        
+
+    def resolve_image_url(self, info):    
+
+        if self.image:
+            return info.context.build_absolute_uri(self.image.url)
+
+    def resolve_total_reviews(self, info):
+        return self.fk_review_treatment.count()
+
+    def resolve_avg_rating(self, info):
+        rating_obj = self.fk_review_treatment.aggregate(Avg('rating'))
+
+        return rating_obj["rating__avg"]
 
 
 class DiseaseType(DjangoObjectType):
@@ -13,7 +37,7 @@ class DiseaseType(DjangoObjectType):
         model = Disease
         fields = ("id", "disease_name", "disease_categories", "descriptions", "create_by", "created_at", "updated_at")
     
-    treatments = graphene.List(TreatmentType)
+    treatments = graphene.List(DiseaseTreatmentType)
 
     def resolve_treatments(self, info):
         return self.treatment_disease.all()
