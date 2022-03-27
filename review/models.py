@@ -27,6 +27,11 @@ class Review(models.Model):
     
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['create_by', 'treatment'], name='rating_once')
+        ]
+
     def __str__(self):
         return f'{self.pk}: {self.create_by} - {self.treatment}'
 
