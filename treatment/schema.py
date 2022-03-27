@@ -47,7 +47,7 @@ class Query(graphene.ObjectType):
         user = info.context.user
         if user.is_authenticated:
             # Querying a list Treatments
-            return Treatment.objects.all()
+            return Treatment.objects.all().order_by("-id")
         raise GraphQLError("Login Required!")
         
        
