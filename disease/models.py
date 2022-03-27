@@ -1,3 +1,4 @@
+from pickle import TRUE
 from django.conf import settings
 from django.db import models
 
@@ -15,7 +16,7 @@ class DiseaseCategories(models.Model):
 
 class Disease(models.Model):
     
-    disease_name = models.CharField(max_length=200)
+    disease_name = models.CharField(max_length=200, unique=TRUE)
 
     disease_categories = models.ManyToManyField(to=DiseaseCategories, related_name='diseases_categories')
     

@@ -46,7 +46,13 @@ class Treatment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     
-
+    class Meta:
+            constraints = [
+                models.UniqueConstraint(
+                    fields=['disease', 'treatment_name', 'treatment_categories'], 
+                    name='unique treatment name'
+                )
+            ]
 
     def __str__(self):
         return self.treatment_name
