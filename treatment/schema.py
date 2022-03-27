@@ -73,32 +73,32 @@ class Query(graphene.ObjectType):
     #         return None
 
 
-# class CreateDisease(graphene.Mutation):
-#     disease = graphene.Field(TreatmentType)
+class CreateTreatment(graphene.Mutation):
+    treatment = graphene.Field(TreatmentType)
 
 
-#     class Arguments:
-#         disease_name = graphene.String(required=True)
-#         disease_categories_id = graphene.List(graphene.ID , required=True)
-#         descriptions = graphene.String(required=True)
+    class Arguments:
+        treatment_name = graphene.String(required=True)
+        other_name = graphene.String()
+        treatment_category_id = graphene.ID(required=True)
+        disease_id = graphene.ID(required=True)
+        descriptions = graphene.String(required=True)
         
 
-#     @login_required
-#     def mutate(self, info, disease_name, descriptions, disease_categories_id):
-#         print(disease_categories_id)
-#         user = info.context.user
-#         if user.is_anonymous:
-#             raise GraphQLError("Login Required To add a disease")
-
-#         disease = Disease(create_by=user, disease_name=disease_name, descriptions=descriptions)
-#         disease.save()
-#         disease.disease_categories.set(disease_categories_id)
+    @login_required
+    def mutate(self, info, treatment_name, descriptions, treatment_category_id, other_name, disease_id):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError("Login Required To add a treatment")
         
-#         return CreateDisease(disease=disease)
+        treatment = Treatment(create_by=user, treatment_name=treatment_name, descriptions=descriptions, other_name=other_name, disease_id=disease_id, treatment_categories_id = treatment_category_id)
+        treatment.save()
+        
+        return CreateTreatment(treatment=treatment)
 
 
 
 
 
-# class Mutation(graphene.ObjectType):
-#     create_disease= CreateDisease.Field()
+class Mutation(graphene.ObjectType):
+    create_treatment= CreateTreatment.Field()
