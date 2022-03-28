@@ -40,23 +40,21 @@ class CreateReview(graphene.Mutation):
 
 
     class Arguments:
-        treatment_name = graphene.String(required=True)
-        other_name = graphene.String()
-        treatment_category_id = graphene.ID(required=True)
-        disease_id = graphene.ID(required=True)
-        descriptions = graphene.String(required=True)
-        
+        rating = graphene.Int(required=True)
+        content = graphene.String(required=True)
+        treatment_id = graphene.ID(required=True)
+       
 
     @login_required
-    def mutate(self, info, treatment_name, descriptions, treatment_category_id, other_name, disease_id):
+    def mutate(self, info, rating, content, treatment_id):
         user = info.context.user
         if user.is_anonymous:
             raise GraphQLError("Login Required To add a treatment")
         
-        treatment = Review(create_by=user, treatment_name=treatment_name, descriptions=descriptions, other_name=other_name, disease_id=disease_id, treatment_categories_id = treatment_category_id)
-        treatment.save()
+        review = Review(create_by=user, treatment_id=treatment_id, rating=rating, content=content)
+        review.save()
         
-        return CreateReview(treatment=treatment)
+        return CreateReview(review=review)
 
 
 
