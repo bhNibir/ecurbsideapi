@@ -16,13 +16,13 @@ class CustomUserType(DjangoObjectType):
 class MedicalProviderType(DjangoObjectType):
     class Meta:
         model = MedicalProvider
-        # fields = ("id", )
+        fields = ("id", "name")
 
 
 class MedicalSettingType(DjangoObjectType):
     class Meta:
         model = MedicalSetting
-        # fields = ("id", )
+        fields = ("id",  "name")
 class ProfessionalProfileType(DjangoObjectType):
     class Meta:
         model = ProfessionalProfile
@@ -32,10 +32,22 @@ class ProfessionalProfileType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     user_profile_by_id = graphene.Field(ProfessionalProfileType, id=graphene.String())
- 
+    medical_setting = graphene.List(MedicalSettingType)
+    medical_provider = graphene.List(MedicalProviderType)
+
     def resolve_user_profile_by_id(self, info, id):
         # Querying a single ProfessionalProfile
         return ProfessionalProfile.objects.get(pk=id)
+
+
+    def resolve_medical_setting(self, info, **kwargs):
+        # Querying a list of Medical Setting
+        return MedicalSetting.objects.all()
+
+
+    def resolve_medical_provider(self, info, **kwargs):
+        # Querying a list of Medical Provider
+        return MedicalProvider.objects.all()
 
 
 class Mutation(graphene.ObjectType):
