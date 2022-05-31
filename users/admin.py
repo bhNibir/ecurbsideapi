@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
-from .models import (CustomUser, MedicalProvider, MedicalSetting,
-                     ProfessionalProfile)
+from .models import (CustomUser, MedicalProvider, MedicalSetting)
+from graphql_auth.models import UserStatus
 
 # User = get_user_model()
 
@@ -12,6 +12,12 @@ from .models import (CustomUser, MedicalProvider, MedicalSetting,
 @admin.register(MedicalProvider)
 class MedicalProviderAdmin(admin.ModelAdmin):    
     list_display = ('id', 'name', )
+    ordering = ('id',)
+
+
+@admin.register(UserStatus)
+class UserStatusAdmin(admin.ModelAdmin):    
+    list_display = ('id', 'user', )
     ordering = ('id',)
 
 
@@ -36,6 +42,7 @@ class UserAdminView(UserAdmin):
     fieldsets = (
         ('Basics', {'fields': ('email', 'username', 'password')}),
         ('Profile info', {'fields': ('first_name', 'last_name', 'phone_number', 'country', 'profile_picture')}),
+        ('Professional info', {'fields': ('health_provider', 'medical_provider_type', 'medical_specialty', 'medical_setting')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
         ('Groups', {'fields': ('groups',)}),
@@ -46,8 +53,8 @@ class UserAdminView(UserAdmin):
     ordering = ('id',)
 
 
-@admin.register(ProfessionalProfile)
-class ProfessionalProfileAdmin(admin.ModelAdmin):    
-    list_display = ('user', 'medical_provider_type', 'medical_setting', 'update_date')
+# @admin.register(ProfessionalProfile)
+# class ProfessionalProfileAdmin(admin.ModelAdmin):    
+#     list_display = ('user', 'medical_provider_type', 'medical_setting', 'update_date')
     # ordering = ('id',)
 
