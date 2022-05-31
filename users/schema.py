@@ -2,16 +2,19 @@ import graphene
 from django_countries.graphql.types import Country
 from graphene_django import DjangoObjectType
 from graphql_auth import mutations
+from django_countries import countries
+from .models import (CustomUser, MedicalProvider, MedicalSetting)
+from graphql_auth.bases import MutationMixin
+from graphql_auth.mixins import RegisterMixin
 
-from .models import (CustomUser, MedicalProvider, MedicalSetting,
-                     ProfessionalProfile)
 
 
 class CustomUserType(DjangoObjectType):
     country = graphene.Field(Country)
+    health_provider = graphene.Boolean()
     class Meta:
         model = CustomUser
-        fields = ("id", "username", 'first_name', 'last_name' , 'country', 'professional_profile')
+        fields = ("id", "username", 'first_name', 'last_name' , 'country', 'health_provider', 'medical_provider_type', 'medical_specialty', 'medical_setting',)
 
 class MedicalProviderType(DjangoObjectType):
     class Meta:
@@ -23,22 +26,14 @@ class MedicalSettingType(DjangoObjectType):
     class Meta:
         model = MedicalSetting
         fields = ("id",  "name")
-class ProfessionalProfileType(DjangoObjectType):
-    class Meta:
-        model = ProfessionalProfile
-        fields = ('user', 'health_provider', 'medical_provider_type', 'medical_specialty', 'medical_setting', 'update_date')
 
 
-
+   
 class Query(graphene.ObjectType):
-    user_profile_by_id = graphene.Field(ProfessionalProfileType, id=graphene.String())
     medical_setting = graphene.List(MedicalSettingType)
     medical_provider = graphene.List(MedicalProviderType)
-
-    def resolve_user_profile_by_id(self, info, id):
-        # Querying a single ProfessionalProfile
-        return ProfessionalProfile.objects.get(pk=id)
-
+    country_list = graphene.List(Country)
+    
 
     def resolve_medical_setting(self, info, **kwargs):
         # Querying a list of Medical Setting
@@ -50,8 +45,36 @@ class Query(graphene.ObjectType):
         return MedicalProvider.objects.all()
 
 
+    def resolve_country_list(self, info, **kwargs):
+        # Querying a list of Countries
+        return list(countries)
+
+
+
+class UserRegistration(MutationMixin, RegisterMixin, graphene.Mutation): 
+
+    #that will be used to register a new user based on graphql_auth
+    class Arguments:
+        username = graphene.String(required=True)
+        email= graphene.String(required=True)
+        password1 = graphene.String(required=True)
+        password2 = graphene.String(required=True)
+        first_name = graphene.String(required=True)
+        last_name = graphene.String(required=True)
+        country = graphene.String(required=True)
+        health_provider = graphene.Boolean(required=True)
+        medical_provider_type_id = graphene.String(required=True)
+        medical_specialty = graphene.List(graphene.String , required=True)
+        medical_setting_id = graphene.String( required=True)
+
+   
+
+
 class Mutation(graphene.ObjectType):
-    register = mutations.Register.Field()
+    # user_registration is custom mutation class
+    user_registration = UserRegistration.Field()
+
+    # graphql_auth provide mutations classes
     verify_account = mutations.VerifyAccount.Field()
     resend_activation_email = mutations.ResendActivationEmail.Field()
     send_password_reset_email = mutations.SendPasswordResetEmail.Field()
@@ -60,12 +83,6 @@ class Mutation(graphene.ObjectType):
     update_account = mutations.UpdateAccount.Field()
     archive_account = mutations.ArchiveAccount.Field()
     delete_account = mutations.DeleteAccount.Field()
-    # send_secondary_email_activation =  mutations.SendSecondaryEmailActivation.Field()
-    # verify_secondary_email = mutations.VerifySecondaryEmail.Field()
-    # swap_emails = mutations.SwapEmails.Field()
-    # remove_secondary_email = mutations.RemoveSecondaryEmail.Field()
-
-    # django-graphql-jwt inheritances
     token_auth = mutations.ObtainJSONWebToken.Field()
     verify_token = mutations.VerifyToken.Field()
     refresh_token = mutations.RefreshToken.Field()
