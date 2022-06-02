@@ -1,8 +1,12 @@
 import graphene
 from django_countries.graphql.types import Country
 from graphene_django import DjangoObjectType
+from graphql import GraphQLError
 from graphql_auth import mutations
 from django_countries import countries
+from disease.models import FavoriteDisease
+
+from disease.schema import FavoriteDiseaseType
 from .models import (CustomUser, MedicalProvider, MedicalSetting)
 from graphql_auth.bases import MutationMixin
 from graphql_auth.mixins import RegisterMixin
@@ -33,6 +37,7 @@ class Query(graphene.ObjectType):
     medical_setting = graphene.List(MedicalSettingType)
     medical_provider = graphene.List(MedicalProviderType)
     country_list = graphene.List(Country)
+    favorite_disease_list = graphene.List(FavoriteDiseaseType)
     
 
     def resolve_medical_setting(self, info, **kwargs):
@@ -49,6 +54,17 @@ class Query(graphene.ObjectType):
         # Querying a list of Countries
         return list(countries)
 
+
+    def resolve_country_list(self, info, **kwargs):
+        # Querying a list of Countries
+        return list(countries)
+
+    def resolve_favorite_disease_list(self, info, **kwargs):
+        user = info.context.user
+        if user.is_authenticated:
+            # Querying a list Treatments
+            return FavoriteDisease.objects.filter(user_id=user.id)
+        raise GraphQLError("Login Required!")
 
 
 class UserRegistration(MutationMixin, RegisterMixin, graphene.Mutation): 

@@ -4,9 +4,14 @@ from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 from django.db.models import Avg
 
-from .models import Disease, DiseaseCategories
+from .models import Disease, DiseaseCategories, FavoriteDisease
 from treatment.models import Treatment
 
+
+class FavoriteDiseaseType(DjangoObjectType):
+    class Meta:
+        model = FavoriteDisease
+        fields = ("id", "user", "disease", "is_favorite", "created_at", "updated_at")
 
 
 class DiseaseTreatmentType(DjangoObjectType):
@@ -35,17 +40,26 @@ class DiseaseTreatmentType(DjangoObjectType):
 class DiseaseType(DjangoObjectType):
     class Meta:
         model = Disease
-        fields = ("id", "disease_name", "disease_categories", "descriptions", "create_by", "created_at", "updated_at")
+        fields = ("id", "disease_name", "disease_categories", "descriptions", "favorite_disease", "create_by", "created_at", "updated_at")
     
     treatments = graphene.List(DiseaseTreatmentType)
+    favorite_disease = graphene.Field(FavoriteDiseaseType)
 
     def resolve_treatments(self, info):
         return self.treatment_disease.all()
+    
+    def resolve_favorite_disease(self, info):
+        user = info.context.user
+        try:
+            return FavoriteDisease.objects.get(user=user, disease_id=self.id)
+        except FavoriteDisease.DoesNotExist:
+            return None
 
 class DiseaseCategoriesType(DjangoObjectType):
     class Meta:
         model = DiseaseCategories
         fields = ("id", "name",)
+
 
 class Query(graphene.ObjectType):
     diseases = graphene.List(DiseaseType)
@@ -102,7 +116,25 @@ class CreateDisease(graphene.Mutation):
         
         return CreateDisease(disease=disease)
 
-        
+
+class CreateFavoriteDisease(graphene.Mutation):
+    favorite_disease = graphene.Field(FavoriteDiseaseType)
+
+    class Arguments:
+        disease_id = graphene.ID(required=True)
+        is_favorite = graphene.Boolean(required=True)
+
+    @login_required
+    def mutate(self, info, disease_id, is_favorite):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError("Login Required To add a favorite disease")
+
+        # disease = Disease.objects.get(pk=disease_id)
+        favorite_disease = FavoriteDisease(user=user, disease_id=disease_id, is_favorite=is_favorite)
+        favorite_disease.save()
+        return CreateFavoriteDisease(favorite_disease=favorite_disease)
+
 
 # class UpdateTrack(graphene.Mutation):
 #     track = graphene.Field(TrackType)
@@ -161,3 +193,4 @@ class CreateDisease(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     create_disease= CreateDisease.Field()
+    create_favorite_disease = CreateFavoriteDisease.Field()
