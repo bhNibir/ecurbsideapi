@@ -6,12 +6,11 @@ from graphql_auth import mutations
 from django_countries import countries
 from disease.models import FavoriteDisease
 
-from disease.schema import DiseaseCategoriesType, FavoriteDiseaseType
+from disease.schema import  FavoriteDiseaseType
 from .models import (CustomUser, MedicalProvider, MedicalSetting)
-from graphql_auth.bases import MutationMixin, DynamicArgsMixin
+from graphql_auth.bases import MutationMixin
 from .mixins import RegisterMixin
 
-from graphene_django.filter.fields import DjangoFilterConnectionField
 
 
 
@@ -97,7 +96,8 @@ class UserRegistration(MutationMixin, RegisterMixin, graphene.Mutation):
     class Arguments:
         username = graphene.String(required=True)
         email= graphene.String(required=True)
-        password = graphene.String(required=True)
+        password1 = graphene.String(required=True)
+        password2 = graphene.String(required=True)
         first_name = graphene.String(required=True)
         last_name = graphene.String(required=True)
         country = graphene.String(required=True)
@@ -105,11 +105,6 @@ class UserRegistration(MutationMixin, RegisterMixin, graphene.Mutation):
         medical_provider_type = graphene.ID()
         medical_specialty = graphene.List(graphene.ID)
         medical_setting = graphene.ID()
-
-    # def mutate(self, info, username, email, password1, password2, first_name, last_name, country, health_provider, medical_provider_type, medical_specialty, medical_setting):
-        # print(username, email, password1, password2, first_name, last_name, country, health_provider, medical_provider_type, medical_specialty, medical_setting)
-   
-
 
 class Mutation(graphene.ObjectType):
     # user_registration is custom mutation class

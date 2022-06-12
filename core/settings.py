@@ -200,8 +200,8 @@ GRAPHQL_AUTH = {
     "ALLOW_LOGIN_NOT_VERIFIED": False,
     "ALLOW_LOGIN_WITH_SECONDARY_EMAIL": False,
 
-    # "REGISTER_MUTATION_FIELDS": ["email", "username", "first_name", "last_name", "health_provider", 'country',],
-    # "REGISTER_MUTATION_FIELDS_OPTIONAL": ["medical_provider_type", "medical_specialty", "medical_setting"],
+    "REGISTER_MUTATION_FIELDS": ["email", "username", "first_name", "last_name", "health_provider", 'country',],
+    "REGISTER_MUTATION_FIELDS_OPTIONAL": ["medical_provider_type", "medical_specialty", "medical_setting"],
 
     "EMAIL_TEMPLATE_VARIABLES": {
         "site_name": os.getenv("SITE_NAME"),
