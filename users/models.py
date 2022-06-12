@@ -8,6 +8,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils.translation import gettext_lazy as _
 
 
 def user_directory_path(instance, filename):
@@ -59,7 +60,9 @@ class CustomUser(AbstractUser):
 
     first_name = models.CharField(max_length=256, blank=False)
     last_name = models.CharField(max_length=256, blank=False)
-    email = models.EmailField(blank=False, max_length=254, verbose_name="email address", unique=True)
+    email = models.EmailField(blank=False, max_length=254, verbose_name="email address", unique=True,  error_messages={
+            'unique': _("A user with that email address already exists."),
+        },)
     phone_number = PhoneNumberField(null = True, blank = True)
     profile_picture = models.ImageField(upload_to = user_directory_path, blank=True, null=True)
     country = CountryField(blank=True, default="US")

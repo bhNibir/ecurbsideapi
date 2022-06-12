@@ -6,19 +6,33 @@ from graphql_auth import mutations
 from django_countries import countries
 from disease.models import FavoriteDisease
 
-from disease.schema import FavoriteDiseaseType
+from disease.schema import DiseaseCategoriesType, FavoriteDiseaseType
 from .models import (CustomUser, MedicalProvider, MedicalSetting)
-from graphql_auth.bases import MutationMixin
-from graphql_auth.mixins import RegisterMixin
+from graphql_auth.bases import MutationMixin, DynamicArgsMixin
+from .mixins import RegisterMixin
+
+from graphene_django.filter.fields import DjangoFilterConnectionField
 
 
 
 class CustomUserType(DjangoObjectType):
-    country = graphene.Field(Country)
-    health_provider = graphene.Boolean()
+   
     class Meta:
         model = CustomUser
-        fields = ("id", "username", 'first_name', 'last_name' , 'country', 'health_provider', 'medical_provider_type', 'medical_specialty', 'medical_setting',)
+        fields = ("id", "username", 'email', 'first_name', 'last_name' , 'profile_picture', 'country', 'health_provider', 'medical_provider_type', 'medical_specialty', 'medical_setting',)
+    
+
+    profile_picture = graphene.String()
+    country = graphene.Field(Country)
+    health_provider = graphene.Boolean()
+
+
+    def resolve_profile_picture(self, info):    
+
+        if self.profile_picture:
+            return info.context.build_absolute_uri(self.profile_picture.url)
+
+
 
 class MedicalProviderType(DjangoObjectType):
     class Meta:
@@ -34,11 +48,21 @@ class MedicalSettingType(DjangoObjectType):
 
    
 class Query(graphene.ObjectType):
+    # user = graphene.Field(CustomUserType)
+    # users = DjangoFilterConnectionField(CustomUserType)
+    me = graphene.Field(CustomUserType)
+
+    
     medical_setting = graphene.List(MedicalSettingType)
     medical_provider = graphene.List(MedicalProviderType)
     country_list = graphene.List(Country)
     favorite_disease_list = graphene.List(FavoriteDiseaseType)
     
+    def resolve_me(self, info):
+        user = info.context.user
+        if user.is_authenticated:
+            return user
+        raise GraphQLError("Authorization Required!")
 
     def resolve_medical_setting(self, info, **kwargs):
         # Querying a list of Medical Setting
@@ -73,16 +97,17 @@ class UserRegistration(MutationMixin, RegisterMixin, graphene.Mutation):
     class Arguments:
         username = graphene.String(required=True)
         email= graphene.String(required=True)
-        password1 = graphene.String(required=True)
-        password2 = graphene.String(required=True)
+        password = graphene.String(required=True)
         first_name = graphene.String(required=True)
         last_name = graphene.String(required=True)
         country = graphene.String(required=True)
         health_provider = graphene.Boolean(required=True)
-        medical_provider_type_id = graphene.String(required=True)
-        medical_specialty = graphene.List(graphene.String , required=True)
-        medical_setting_id = graphene.String( required=True)
+        medical_provider_type = graphene.ID()
+        medical_specialty = graphene.List(graphene.ID)
+        medical_setting = graphene.ID()
 
+    # def mutate(self, info, username, email, password1, password2, first_name, last_name, country, health_provider, medical_provider_type, medical_specialty, medical_setting):
+        # print(username, email, password1, password2, first_name, last_name, country, health_provider, medical_provider_type, medical_specialty, medical_setting)
    
 
 
