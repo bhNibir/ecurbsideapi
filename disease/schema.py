@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 import graphene
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
@@ -83,8 +84,13 @@ class Query(graphene.ObjectType):
 
     def resolve_disease_by_id(self, info, id):
         # Querying a single Disease
-        return Disease.objects.get(pk=id)
-        
+        user = info.context.user
+        if user.is_authenticated:
+
+            # Querying a list Diseases
+            return Disease.objects.get(pk=id)
+        raise GraphQLError("Login Required!")
+       
 
     # def resolve_disease_category_by_name(self, info, name):
     #     try:
@@ -105,17 +111,21 @@ class CreateDisease(graphene.Mutation):
 
     @login_required
     def mutate(self, info, disease_name, descriptions, disease_categories_id):
-        print(disease_categories_id)
+       
         user = info.context.user
         if user.is_anonymous:
-            raise GraphQLError("Login Required To add a disease")
+            raise GraphQLError("Login Required!")
+        else:
+            try:
 
-        disease = Disease(create_by=user, disease_name=disease_name, descriptions=descriptions)
-        disease.save()
-        disease.disease_categories.set(disease_categories_id)
-        
-        return CreateDisease(disease=disease)
+                disease = Disease(create_by=user, disease_name=disease_name, descriptions=descriptions)
+                disease.save()
+                disease.disease_categories.set(disease_categories_id)
+                return CreateDisease(disease=disease)
 
+            except IntegrityError as e:
+                if 'unique constraint' in str(e.args).lower():
+                    raise GraphQLError(f'{disease_name} is already there! Please Try Different.')
 
 class CreateFavoriteDisease(graphene.Mutation):
     favorite_disease = graphene.Field(FavoriteDiseaseType)
@@ -128,7 +138,7 @@ class CreateFavoriteDisease(graphene.Mutation):
     def mutate(self, info, disease_id, is_favorite):
         user = info.context.user
         if user.is_anonymous:
-            raise GraphQLError("Login Required To add a favorite disease")
+            raise GraphQLError("Login Required!")
 
         # disease = Disease.objects.get(pk=disease_id)
         favorite_disease = FavoriteDisease(user=user, disease_id=disease_id, is_favorite=is_favorite)

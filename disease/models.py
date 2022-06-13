@@ -22,8 +22,9 @@ class Disease(models.Model):
     descriptions = models.TextField()
     create_by = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='disease_user')
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)    
+    updated_at = models.DateTimeField(auto_now=True)
 
+    
     def __str__(self):
         return self.disease_name
 

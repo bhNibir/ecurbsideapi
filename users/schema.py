@@ -61,7 +61,7 @@ class Query(graphene.ObjectType):
         user = info.context.user
         if user.is_authenticated:
             return user
-        raise GraphQLError("Authorization Required!")
+        raise GraphQLError("Login Required!")
 
     def resolve_medical_setting(self, info, **kwargs):
         # Querying a list of Medical Setting
@@ -77,10 +77,6 @@ class Query(graphene.ObjectType):
         # Querying a list of Countries
         return list(countries)
 
-
-    def resolve_country_list(self, info, **kwargs):
-        # Querying a list of Countries
-        return list(countries)
 
     def resolve_favorite_disease_list(self, info, **kwargs):
         user = info.context.user

@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 import graphene
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
@@ -71,11 +72,23 @@ class Query(graphene.ObjectType):
     
     def resolve_treatments_categories(self, info, **kwargs):
         # Querying a list of Treatment Categories
-        return TreatmentCategories.objects.all()
+        user = info.context.user
+        if user.is_authenticated:
+            # Querying a list Treatments
+            return TreatmentCategories.objects.all()
+        raise GraphQLError("Login Required!")
+        
+       
 
     def resolve_treatment_by_id(self, info, id):
         # Querying a single Treatment
-        return Treatment.objects.get(pk=id)
+        user = info.context.user
+        if user.is_authenticated:
+            # Querying a list Treatments
+            return Treatment.objects.get(pk=id)
+        raise GraphQLError("Login Required!")
+        
+        
     
     # def resolve_treatment_by_disease_id(self, info, disease_id):
     #     # Querying a single Disease
@@ -106,12 +119,18 @@ class CreateTreatment(graphene.Mutation):
     def mutate(self, info, treatment_name, descriptions, treatment_category_id, other_name, disease_id):
         user = info.context.user
         if user.is_anonymous:
-            raise GraphQLError("Login Required To add a treatment")
+            raise GraphQLError("Login Required!")
         
-        treatment = Treatment(create_by=user, treatment_name=treatment_name, descriptions=descriptions, other_name=other_name, disease_id=disease_id, treatment_categories_id = treatment_category_id)
-        treatment.save()
-        
-        return CreateTreatment(treatment=treatment)
+        else:
+            try:
+                treatment = Treatment(create_by=user, treatment_name=treatment_name, descriptions=descriptions, other_name=other_name, disease_id=disease_id, treatment_categories_id = treatment_category_id)
+                treatment.save()
+                return CreateTreatment(treatment=treatment)
+
+            except IntegrityError as e:
+                if 'unique constraint' in str(e.args).lower():
+                    raise GraphQLError(f'{treatment_name} is already there! Please Try Different.')  
+
 
 
 
