@@ -98,9 +98,9 @@ class UserRegistration(MutationMixin, RegisterMixin, graphene.Mutation):
         last_name = graphene.String(required=True)
         country = graphene.String(required=True)
         health_provider = graphene.Boolean(required=True)
-        medical_provider_type = graphene.ID()
-        medical_specialty = graphene.List(graphene.ID)
-        medical_setting = graphene.ID()
+        medical_provider_type = graphene.ID(required=False)
+        medical_specialty = graphene.List(graphene.ID, required=False)
+        medical_setting = graphene.ID(required=False)
 
 class Mutation(graphene.ObjectType):
     # user_registration is custom mutation class

@@ -79,7 +79,9 @@ class RegisterMixin(Output):
                     medical_specialty = kwargs["medical_specialty"]
                     UserStatus.clean_email(email)
                     user = f.save()
-                    user.medical_specialty.set(medical_specialty)
+                    if medical_specialty:
+                        user.medical_specialty.set(medical_specialty)
+                        
                     send_activation = (
                         app_settings.SEND_ACTIVATION_EMAIL is True and email
                     )

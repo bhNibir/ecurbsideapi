@@ -129,7 +129,7 @@ class CreateTreatment(graphene.Mutation):
 
             except IntegrityError as e:
                 if 'unique constraint' in str(e.args).lower():
-                    raise GraphQLError(f'{treatment_name} is already there! Please Try Different.')  
+                    raise GraphQLError(f'{treatment_name} is already exists.')  
 
 
 

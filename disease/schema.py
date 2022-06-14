@@ -125,7 +125,7 @@ class CreateDisease(graphene.Mutation):
 
             except IntegrityError as e:
                 if 'unique constraint' in str(e.args).lower():
-                    raise GraphQLError(f'{disease_name} is already there! Please Try Different.')
+                    raise GraphQLError(f'{disease_name} is already exists.')
 
 class CreateFavoriteDisease(graphene.Mutation):
     favorite_disease = graphene.Field(FavoriteDiseaseType)
