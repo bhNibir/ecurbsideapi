@@ -4,31 +4,42 @@ from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
+from review.schema import ReviewType
+
 from .models import Treatment, TreatmentCategories
 from django.db.models import Avg
 from review.models import Review
+from core.ordering import OrderedDjangoFilterConnectionField
 
 
-class TreatmentReviewType(DjangoObjectType):
-    class Meta:
-        model = Review
-        fields = ("id", "rating", "content", "treatment", "create_by", "created_at", "updated_at")
-        convert_choices_to_enum = False
+# class TreatmentReviewType(DjangoObjectType):
+#     class Meta:
+#         model = Review
+#         fields = ("id", "rating", "content", "treatment", "create_by", "created_at", "updated_at")
+#         convert_choices_to_enum = False
+#         interfaces = (graphene.relay.Node, )
+#         use_connection = True
+#         filter_fields=[]
 
 class TreatmentType(DjangoObjectType):
     class Meta:
         model = Treatment
         fields = ("id", "disease","treatment_name", "other_name", "treatment_categories", "descriptions", "create_by", "created_at", "updated_at")
-    
+
     
     image_url = graphene.String()
     total_reviews = graphene.Int()
     avg_rating = graphene.Int()
-    reviews = graphene.List(TreatmentReviewType)
+    user_review = graphene.Field(ReviewType)
 
 
-    def resolve_reviews(self, info):
-        return self.fk_review_treatment.all()
+    def resolve_user_review(self, info, **kwargs):
+        print(self.id)
+        user = info.context.user
+        try:
+            return Review.objects.get(create_by = user, treatment=self)
+        except Review.DoesNotExist:
+            return None
 
 
     def resolve_image_url(self, info):    
