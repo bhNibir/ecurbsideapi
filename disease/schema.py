@@ -127,7 +127,7 @@ class CreateDisease(graphene.Mutation):
                 if 'unique constraint' in str(e.args).lower():
                     raise GraphQLError(f'{disease_name} is already exists.')
 
-class CreateFavoriteDisease(graphene.Mutation):
+class UpdateOrCreateFavoriteDisease(graphene.Mutation):
     favorite_disease = graphene.Field(FavoriteDiseaseType)
 
     class Arguments:
@@ -140,10 +140,13 @@ class CreateFavoriteDisease(graphene.Mutation):
         if user.is_anonymous:
             raise GraphQLError("Login Required!")
 
-        # disease = Disease.objects.get(pk=disease_id)
-        favorite_disease = FavoriteDisease(user=user, disease_id=disease_id, is_favorite=is_favorite)
-        favorite_disease.save()
-        return CreateFavoriteDisease(favorite_disease=favorite_disease)
+        favorite_disease, created = FavoriteDisease.objects.update_or_create(
+            user_id=user.id,
+            disease_id=disease_id,
+            defaults={"is_favorite": is_favorite}
+            )
+
+        return UpdateOrCreateFavoriteDisease(favorite_disease=favorite_disease)
 
 
 # class UpdateTrack(graphene.Mutation):
@@ -203,4 +206,4 @@ class CreateFavoriteDisease(graphene.Mutation):
 
 class Mutation(graphene.ObjectType):
     create_disease= CreateDisease.Field()
-    create_favorite_disease = CreateFavoriteDisease.Field()
+    update_or_create_favorite_disease = UpdateOrCreateFavoriteDisease.Field()
