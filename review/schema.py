@@ -3,6 +3,8 @@ from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
+from core.ordering import OrderedDjangoFilterConnectionField
+
 from .models import Review, ReviewComment, ReviewLike
 from django.db import IntegrityError
 
@@ -14,21 +16,39 @@ class ReviewType(DjangoObjectType):
     class Meta:
         model = Review
         fields = ("id", "rating", "content", "treatment", "create_by", "created_at", "updated_at")
+        convert_choices_to_enum = False
+        interfaces = (graphene.relay.Node, )
+        use_connection = True
+        filter_fields=[]
         
-
-
 
 
 
 class Query(graphene.ObjectType):
       
     reviews_by_id = graphene.Field(ReviewType, id=graphene.String(required=True))
+    reviews_by_treatment_id =  OrderedDjangoFilterConnectionField(ReviewType,  id=graphene.String(required=True), orderBy=graphene.List(of_type=graphene.String))
 
     def resolve_reviews_by_id(self, info, id):
         user = info.context.user
         if user.is_authenticated:
              # Querying a single Treatment
             return Review.objects.get(pk=id)
+        raise GraphQLError("Login Required!")
+       
+ # Querying Reviews by TreatmentId
+    def resolve_reviews_by_treatment_id(self, info, id, *args, **kwargs):
+        user = info.context.user
+        
+
+        if user.is_authenticated:
+            orderBy = kwargs.get('orderBy')
+        
+            if orderBy[0] == '':
+                orderBy[0] = '-created_at'
+
+            return Review.objects.filter(treatment_id=id)
+
         raise GraphQLError("Login Required!")
        
        
