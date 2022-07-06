@@ -3,12 +3,13 @@ import graphene
 import users.schema
 from graphql_auth import mutations
 from graphql_auth.schema import MeQuery, UserQuery
+import treatment.schema
+import review.schema
 
-
-class Query(UserQuery, users.schema.Query, MeQuery, disease.schema.Query, graphene.ObjectType):
+class Query( users.schema.Query, disease.schema.Query, treatment.schema.Query,  review.schema.Query, graphene.ObjectType):
     pass
 
-class Mutation(users.schema.Mutation, disease.schema.Mutation, graphene.ObjectType):
+class Mutation(users.schema.Mutation, disease.schema.Mutation, treatment.schema.Mutation, review.schema.Mutation, graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
