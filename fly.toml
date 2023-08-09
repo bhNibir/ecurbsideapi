@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for ecurbsideapi on 2023-08-09T02:13:03+06:00
+# fly.toml app configuration file generated for ecurbsideapi on 2023-08-09T08:51:42Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -8,6 +8,9 @@ primary_region = "sin"
 console_command = "/code/manage.py shell"
 
 [build]
+
+[deploy]
+  release_command = "python manage.py migrate"
 
 [env]
   PORT = "8000"

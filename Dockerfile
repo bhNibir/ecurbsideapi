@@ -1,9 +1,15 @@
-ARG PYTHON_VERSION=3.11-slim-bullseye
+ARG PYTHON_VERSION=3.10-slim-bullseye
 
 FROM python:${PYTHON_VERSION}
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies.
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /code
 
@@ -16,7 +22,7 @@ RUN set -ex && \
     rm -rf /root/.cache/
 COPY . /code
 
-ENV SECRET_KEY "mGaemUz173ziSHNy92Ld3cKFtXcVszSNyiF8ULPUay2BwWY4w4"
+ENV SECRET_KEY "pGIdv8HfFfzRU8juxh03K9XPcSduPAiVY9DJoZo3YXG9rp1Dyy"
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
